@@ -24,9 +24,9 @@ contract LoggerNFT is ERC721, Ownable {
 
     // -------------------- functions -------------------
     function addLogger(address logger, address owner) public onlyOwner {
+        _tokenIdCounter.increment();
         uint256 loggerId = _tokenIdCounter.current();
         loggers[logger] = loggerId;
-        _tokenIdCounter.increment();
         _safeMint(owner, loggerId);
 
         emit LoggerAdded(logger, loggerId);

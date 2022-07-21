@@ -11,6 +11,7 @@ logger_2 = accounts[2]
 
 def main():
     usdc, loggers, uae_uk_insurance, oracle = deploy_contracts()
+    setup_loggers(loggers)
     print("============================================================================")
     print("USDC:                 ", usdc.address)
     print("Loggers:              ", loggers.address)
@@ -33,3 +34,8 @@ def deploy_contracts():
     poolId = pool_factory.totalPools()
     uae_uk_insurance = InsurancePool.at(pool_factory.getPool(poolId))
     return [usdc, loggers, uae_uk_insurance, oracle]
+
+
+def setup_loggers(loggers):
+    loggers.addLogger(logger_1, admin, {'from': admin})
+    loggers.addLogger(logger_2, admin, {'from': admin})
