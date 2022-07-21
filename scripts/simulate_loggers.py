@@ -1,44 +1,69 @@
 #!/usr/bin/python3
-import time
 from brownie import *
-from web3 import Web3
-from . import deploy_test
-from pprint import pprint
-import pandas as pd
+from . import deploy_contracts, helpers
+from pprint import pprint as pp
 
+
+# Contracts
+usdc, loggers, insurance, oracle = deploy_contracts.main()
+
+# Signing keys
 admin = accounts[0]
-logger_1 = accounts[1]
-logger_2 = accounts[2]
-
-w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545"))
+device_1 = accounts[1]
+device_2 = accounts[2]
+harun = accounts[6]
+usama = accounts[7]
+raj = accounts[8]
+customer = accounts[9]
 
 
 def main():
-    usdc, loggers, uae_uk_insurance, oracle = deploy_test.main()
-    generate_logging_data(loggers, 1, logger_1)
-    generate_logging_data(loggers, 2, logger_2)
-    get_logger_data(loggers, logger_1)
+    # Generate some mock logging data on the contract
+    helpers.generate_logging_data(loggers, 1, device_1)
+    helpers.generate_logging_data(loggers, 2, device_2)
 
+    # Get the data from the contract as a pandas dataframe
+    device_1_data = helpers.get_logger_data(loggers, 1)
+    device_2_data = helpers.get_logger_data(loggers, 2)
 
-def generate_logging_data(loggers, id, signer):
-    loggers.logData(id, 32, "02435:13463", time.time(), {'from': signer})
-    loggers.logData(id, 33, "12535:53263", time.time(), {'from': signer})
-    loggers.logData(id, 34, "18435:13463", time.time(), {'from': signer})
-    loggers.logData(id, 36, "12535:12463", time.time(), {'from': signer})
-    loggers.logData(id, 37, "12435:03483", time.time(), {'from': signer})
-    loggers.logData(id, 39, "12435:03463", time.time(), {'from': signer})
+    # Print the data
+    print('\nDevice 1 data:')
+    pp(device_1_data)
 
+    print(f'\nAdmin USDC balance:    ${helpers.token_balance(usdc, admin)}')
+    print(f'harun USDC balance:    ${helpers.token_balance(usdc, harun)}')
+    print(f'usama USDC balance:    ${helpers.token_balance(usdc, usama)}')
+    print(f'raj USDC balance:      ${helpers.token_balance(usdc, raj)}')
+    print(f'harun Pool-LP balance: ${helpers.token_balance(insurance, harun)}')
+    print(f'Pool USDC balance:     ${helpers.token_balance(usdc, insurance)}')
 
-# returns a dataframe with the logging data
-def get_logger_data(loggers, signer):
-    contract = w3.eth.contract(address=loggers.address, abi=loggers.abi)
-    filter = contract.events.LogData.createFilter(
-        fromBlock=0, argument_filters={'loggerId': 1})
-    events = filter.get_all_entries()
+    print("\n--------------------------------------------")
+    print(f'Harun Depositing USDC into Insurance Pool...')
+    print("--------------------------------------------")
 
-    mappedList = map(lambda d: d.args.data, events)
+    helpers.add_liquidity_insurance(insurance, usdc, 1e6 * 250000, harun)
+    print(f'Harun USDC balance:    ${helpers.token_balance(usdc, harun)}')
+    print(f'Harun Pool-LP balance: ${helpers.token_balance(insurance, harun)}')
+    print(f'Pool USDC balance:     ${helpers.token_balance(usdc, insurance)}')
 
-    df = pd.DataFrame(list(mappedList))
-    print(df)
+    print("\n--------------------------------------------")
+    print(f'Usama Depositing USDC into Insurance Pool...')
+    print("--------------------------------------------")
 
-    # pprint(list(mappedList)[0][0])
+    helpers.add_liquidity_insurance(insurance, usdc, 1e6 * 250000, usama)
+    print(f'Usama USDC balance:    ${helpers.token_balance(usdc, usama)}')
+    print(f'Usama Pool-LP balance: ${helpers.token_balance(insurance, usama)}')
+    print(f'Pool USDC balance:     ${helpers.token_balance(usdc, insurance)}')
+
+    print("\n--------------------------------------------")
+    print(f'Raj Depositing USDC into Insurance Pool...')
+    print("--------------------------------------------")
+
+    helpers.add_liquidity_insurance(insurance, usdc, 1e6 * 500000, raj)
+    print(f'Raj USDC balance:      ${helpers.token_balance(usdc, raj)}')
+    print(f'Raj Pool-LP balance:   ${helpers.token_balance(insurance, raj)}')
+    print(f'Pool USDC balance:     ${helpers.token_balance(usdc, insurance)}')
+    print("--------------------------------------------\n")
+
+    print("\n\n\n--------------------------------------------")
+    print("get insurance quote")
