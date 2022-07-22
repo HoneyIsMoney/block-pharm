@@ -10,7 +10,7 @@ contract LoggerNFT is ERC721, Ownable {
 
     Counters.Counter private _tokenIdCounter;
     mapping(address => uint) public loggers;
-    mapping(uint => uint) public lastTimestamp;
+    mapping(uint => uint) private lastTimestamp;
 
     struct Data {
         uint256 temprature;
@@ -24,7 +24,7 @@ contract LoggerNFT is ERC721, Ownable {
     constructor() ERC721("BlockPharm Logger", "LOGGER") {}
 
     // -------------------- functions -------------------
-    function addLogger(address logger, address owner) public onlyOwner {
+    function addLogger(address logger, address owner) external onlyOwner {
         _tokenIdCounter.increment();
         uint256 loggerId = _tokenIdCounter.current();
         loggers[logger] = loggerId;
@@ -37,14 +37,18 @@ contract LoggerNFT is ERC721, Ownable {
         uint loggerId,
         uint temp,
         string calldata gps,
-        uint calldata timestamp
-    ) public {
+        uint timestamp
+    ) external {
         require(loggers[msg.sender] == loggerId, "You are not the logger");
         lastTimestamp[loggerId] = timestamp;
         emit LogData(loggerId, Data(temp, gps, timestamp));
     }
 
-    function numOfLoggers() public view returns (uint) {
+    function numOfLoggers() external view returns (uint) {
         return _tokenIdCounter.current();
+    }
+
+    function timestamp(uint loggerId) external view returns (uint) {
+        return lastTimestamp[loggerId];
     }
 }

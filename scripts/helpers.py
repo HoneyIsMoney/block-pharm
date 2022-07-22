@@ -13,12 +13,12 @@ def setup_pool(pool_factory, pool_name, pool_symbol, admin):
 
 
 def generate_logging_data(loggersNFT, id, signer):
-    loggersNFT.logData(id, 32, "02435:13463", time.time(), {'from': signer})
-    loggersNFT.logData(id, 33, "12535:53263", time.time(), {'from': signer})
-    loggersNFT.logData(id, 34, "18435:13463", time.time(), {'from': signer})
-    loggersNFT.logData(id, 36, "12535:12463", time.time(), {'from': signer})
-    loggersNFT.logData(id, 37, "12435:03483", time.time(), {'from': signer})
-    loggersNFT.logData(id, 39, "12435:03463", time.time(), {'from': signer})
+    loggersNFT.logData(id, 32, "L:1234321", 1657270800, {'from': signer})
+    loggersNFT.logData(id, 33, "L:1234321", 1657270860, {'from': signer})
+    loggersNFT.logData(id, 34, "L:1234321", 1657270920, {'from': signer})
+    loggersNFT.logData(id, 36, "L:1234321", 1657270980, {'from': signer})
+    loggersNFT.logData(id, 37, "L:1234321", 1657271040, {'from': signer})
+    loggersNFT.logData(id, 39, "L:1234321", 1657270100, {'from': signer})
 
 
 def get_logger_data(loggersNFT, id):
