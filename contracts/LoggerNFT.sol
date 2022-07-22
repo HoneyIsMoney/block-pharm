@@ -10,11 +10,12 @@ contract LoggerNFT is ERC721, Ownable {
 
     Counters.Counter private _tokenIdCounter;
     mapping(address => uint) public loggers;
+    mapping(uint => uint) public lastTimestamp;
 
     struct Data {
         uint256 temprature;
         string gps;
-        string timestamp;
+        uint timestamp;
     }
 
     event LogData(uint loggerId, Data data);
@@ -36,9 +37,10 @@ contract LoggerNFT is ERC721, Ownable {
         uint loggerId,
         uint temp,
         string calldata gps,
-        string calldata timestamp
+        uint calldata timestamp
     ) public {
         require(loggers[msg.sender] == loggerId, "You are not the logger");
+        lastTimestamp[loggerId] = timestamp;
         emit LogData(loggerId, Data(temp, gps, timestamp));
     }
 
